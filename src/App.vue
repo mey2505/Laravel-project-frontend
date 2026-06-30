@@ -25,7 +25,7 @@
             </template>
             <!-- Authenticated Links -->
             <template v-else>
-              <router-link to="/orders" class="hidden lg:inline text-sm font-medium text-zinc-200 hover:text-amber-400 transition-colors" :class="{ 'text-amber-400': route.name === 'Orders' }">My Orders</router-link>
+              <!-- <router-link to="/orders" class="hidden lg:inline text-sm font-medium text-zinc-200 hover:text-amber-400 transition-colors" :class="{ 'text-amber-400': route.name === 'Orders' }">My Orders</router-link> -->
               <span class="hidden lg:inline text-sm text-zinc-600">|</span>
               <span class="hidden lg:inline text-sm text-zinc-300">Hi, {{ authStore.user?.name }}</span>
               <button @click="handleLogout" class="text-sm font-medium text-zinc-200 hover:text-amber-400 transition-colors">Sign out</button>
