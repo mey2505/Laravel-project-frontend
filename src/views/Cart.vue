@@ -1,86 +1,167 @@
 <template>
-  <div class="bg-white">
-    <div class="max-w-2xl mx-auto pt-16 pb-24 px-4 sm:px-6 lg:max-w-7xl lg:px-8">
-      <h1 class="text-3xl font-extrabold tracking-tight text-gray-900 sm:text-4xl">Shopping Cart</h1>
-      
-      <div v-if="cartStore.loading" class="mt-12 py-12 flex justify-center">
-        <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600"></div>
-      </div>
-      <div v-else-if="cartStore.itemCount === 0" class="mt-12 text-center py-12 text-gray-500">
-        Your cart is empty. <router-link to="/" class="text-indigo-600 hover:underline">Continue shopping</router-link>
-      </div>
-      <form v-else class="mt-12 lg:grid lg:grid-cols-12 lg:gap-x-12 lg:items-start">
-        <section aria-labelledby="cart-heading" class="lg:col-span-7">
-          <h2 id="cart-heading" class="sr-only">Items in your shopping cart</h2>
+  <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+    <h1 class="text-3xl font-bold text-zinc-900 mb-8">Shopping Cart</h1>
 
-          <ul role="list" class="border-t border-b border-gray-200 divide-y divide-gray-200">
-            <li v-for="item in cartStore.cartItems" :key="item.id" class="flex py-6 sm:py-10">
-              <div class="flex-shrink-0">
-                <img :src="item.product?.image || 'https://via.placeholder.com/150'" :alt="item.product?.name" class="w-24 h-24 rounded-md object-center object-cover sm:w-48 sm:h-48" />
-              </div>
+    <div v-if="cartStore.loading" class="flex justify-center py-24">
+      <div class="animate-spin rounded-full h-10 w-10 border-b-2 border-amber-400"></div>
+    </div>
 
-              <div class="ml-4 flex-1 flex flex-col justify-between sm:ml-6">
-                <div class="relative pr-9 sm:grid sm:grid-cols-2 sm:gap-x-6 sm:pr-0">
-                  <div>
-                    <div class="flex justify-between">
-                      <h3 class="text-sm">
-                        <router-link :to="`/product/${item.product?.slug}`" class="font-medium text-gray-700 hover:text-gray-800">{{ item.product?.name }}</router-link>
-                      </h3>
-                    </div>
-                    <p class="mt-1 text-sm font-medium text-gray-900">${{ item.product?.price }}</p>
-                    <p class="mt-1 text-sm text-gray-500">Qty: {{ item.quantity }}</p>
-                  </div>
-                  
-                  <div class="mt-4 sm:mt-0 sm:pr-9">
-                    <div class="absolute top-0 right-0">
-                      <button type="button" @click="removeItem(item.id)" class="-m-2 p-2 inline-flex text-gray-400 hover:text-gray-500">
-                        <span class="sr-only">Remove</span>
-                        <svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-                          <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd" />
-                        </svg>
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </li>
-          </ul>
-        </section>
+    <div v-else-if="cartStore.itemCount === 0" class="text-center py-24">
+      <svg class="mx-auto h-14 w-14 text-zinc-200 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
+      </svg>
+      <h3 class="text-lg font-semibold text-zinc-900">Your cart is empty</h3>
+      <p class="mt-1 text-sm text-zinc-500">Add something delicious to get started.</p>
+      <router-link to="/menu" class="mt-6 inline-block bg-amber-400 hover:bg-amber-300 text-zinc-950 font-semibold px-6 py-2.5 rounded-md transition-colors">Browse menu</router-link>
+    </div>
 
-        <!-- Order summary -->
-        <section aria-labelledby="summary-heading" class="mt-16 bg-gray-50 rounded-lg px-4 py-6 sm:p-6 lg:p-8 lg:mt-0 lg:col-span-5">
-          <h2 id="summary-heading" class="text-lg font-medium text-gray-900">Order summary</h2>
-
-          <dl class="mt-6 space-y-4">
-            <div class="flex items-center justify-between">
-              <dt class="text-sm text-gray-600">Subtotal</dt>
-              <dd class="text-sm font-medium text-gray-900">${{ cartStore.cartTotal }}</dd>
+    <div v-else class="lg:grid lg:grid-cols-12 lg:gap-8">
+      <!-- Cart items -->
+      <div class="lg:col-span-7">
+        <ul class="space-y-4">
+          <li
+            v-for="item in cartStore.cartItems"
+            :key="item.id"
+            class="flex gap-4 bg-white rounded-xl border border-zinc-100 shadow-sm p-4 items-center"
+          >
+            <div class="w-20 h-20 flex-shrink-0 rounded-lg bg-zinc-100 overflow-hidden">
+              <img
+                :src="item.product?.image ? resolveImageUrl(item.product.image) : 'https://placehold.co/80x80?text=?'"
+                :alt="item.product?.name"
+                class="w-full h-full object-cover"
+              />
             </div>
-            <div class="border-t border-gray-200 pt-4 flex items-center justify-between">
-              <dt class="text-base font-medium text-gray-900">Order total</dt>
-              <dd class="text-base font-medium text-gray-900">${{ cartStore.cartTotal }}</dd>
-            </div>
-          </dl>
 
-          <div class="mt-6">
-            <router-link to="/checkout" class="w-full flex justify-center items-center bg-indigo-600 border border-transparent rounded-md shadow-sm py-3 px-4 text-base font-medium text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-50 focus:ring-indigo-500">Checkout</router-link>
+            <div class="flex-1 min-w-0">
+              <router-link :to="`/product/${item.product?.slug}`" class="text-sm font-semibold text-zinc-900 hover:text-amber-600 transition-colors line-clamp-2">
+                {{ item.product?.name }}
+              </router-link>
+              <p class="text-xs text-zinc-500 mt-0.5">{{ item.product?.category?.name }}</p>
+
+              <!-- Quantity controls -->
+              <div class="flex items-center gap-2 mt-2">
+                <button
+                  @click="decreaseQty(item)"
+                  :disabled="item.quantity <= 1 || updatingId === item.id"
+                  class="w-6 h-6 flex items-center justify-center border border-zinc-300 rounded text-zinc-600 hover:bg-zinc-100 disabled:opacity-40 transition-colors text-sm"
+                >−</button>
+                <span class="text-sm font-medium text-zinc-900 w-6 text-center">{{ item.quantity }}</span>
+                <button
+                  @click="increaseQty(item)"
+                  :disabled="updatingId === item.id"
+                  class="w-6 h-6 flex items-center justify-center border border-zinc-300 rounded text-zinc-600 hover:bg-zinc-100 disabled:opacity-40 transition-colors text-sm"
+                >+</button>
+                <div v-if="updatingId === item.id" class="w-3 h-3 border-b border-amber-400 rounded-full animate-spin ml-1"></div>
+              </div>
+            </div>
+
+            <div class="flex flex-col items-end gap-2">
+              <p class="text-sm font-bold text-zinc-900">${{ ((item.product?.discount_price ?? item.product?.price ?? 0) * item.quantity).toFixed(2) }}</p>
+              <p class="text-xs text-zinc-400">${{ item.product?.discount_price ?? item.product?.price }} each</p>
+              <button
+                @click="removeItem(item.id)"
+                class="text-xs text-red-500 hover:text-red-700 transition-colors font-medium"
+              >
+                Remove
+              </button>
+            </div>
+          </li>
+        </ul>
+
+        <div class="mt-4 flex justify-between items-center">
+          <router-link to="/menu" class="text-sm text-amber-600 hover:text-amber-700 font-medium flex items-center gap-1">
+            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/></svg>
+            Continue shopping
+          </router-link>
+          <button @click="clearCart" class="text-sm text-zinc-400 hover:text-red-500 transition-colors">Clear cart</button>
+        </div>
+      </div>
+
+      <!-- Summary -->
+      <div class="mt-8 lg:mt-0 lg:col-span-5">
+        <div class="bg-zinc-50 rounded-xl border border-zinc-200 p-6 sticky top-20">
+          <h2 class="text-base font-semibold text-zinc-900 mb-5">Order summary</h2>
+
+          <div class="space-y-3 text-sm">
+            <div v-for="item in cartStore.cartItems" :key="item.id" class="flex justify-between text-zinc-600">
+              <span class="truncate max-w-[180px]">{{ item.product?.name }} × {{ item.quantity }}</span>
+              <span>${{ ((item.product?.discount_price ?? item.product?.price ?? 0) * item.quantity).toFixed(2) }}</span>
+            </div>
           </div>
-        </section>
-      </form>
+
+          <div class="mt-5 pt-4 border-t border-zinc-200 space-y-2 text-sm">
+            <div class="flex justify-between text-zinc-500">
+              <span>Subtotal</span><span>${{ cartStore.cartTotal }}</span>
+            </div>
+            <div class="flex justify-between text-zinc-500">
+              <span>Shipping</span><span class="text-green-600">Calculated at checkout</span>
+            </div>
+            <div class="flex justify-between text-base font-bold text-zinc-900 pt-2 border-t border-zinc-200">
+              <span>Estimated total</span><span>${{ cartStore.cartTotal }}</span>
+            </div>
+          </div>
+
+          <router-link
+            to="/checkout"
+            class="mt-6 flex w-full items-center justify-center bg-amber-400 hover:bg-amber-300 text-zinc-950 font-semibold py-3 rounded-md transition-colors"
+          >
+            Proceed to checkout →
+          </router-link>
+          <p class="mt-3 text-center text-xs text-zinc-400">Secure checkout · Free returns</p>
+        </div>
+      </div>
     </div>
   </div>
 </template>
 
 <script setup>
+import { ref } from 'vue'
+import { resolveImageUrl } from '../axios'
 import { useCartStore } from '../stores/cart'
+import axios from '../axios'
 
 const cartStore = useCartStore()
+const updatingId = ref(null)
 
 const removeItem = async (id) => {
   try {
     await cartStore.removeFromCart(id)
-  } catch (error) {
+  } catch (e) {
     alert('Could not remove item')
+  }
+}
+
+const clearCart = async () => {
+  if (!confirm('Remove all items from your cart?')) return
+  try {
+    await cartStore.clearCartServer()
+  } catch (e) {
+    alert('Could not clear cart')
+  }
+}
+
+const increaseQty = async (item) => {
+  updatingId.value = item.id
+  try {
+    await axios.put(`/cart/${item.id}`, { quantity: item.quantity + 1 })
+    await cartStore.fetchCart()
+  } catch (e) {
+    console.error(e)
+  } finally {
+    updatingId.value = null
+  }
+}
+
+const decreaseQty = async (item) => {
+  if (item.quantity <= 1) return
+  updatingId.value = item.id
+  try {
+    await axios.put(`/cart/${item.id}`, { quantity: item.quantity - 1 })
+    await cartStore.fetchCart()
+  } catch (e) {
+    console.error(e)
+  } finally {
+    updatingId.value = null
   }
 }
 </script>
