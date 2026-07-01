@@ -42,7 +42,7 @@
           <button
             type="submit"
             :disabled="authStore.loading"
-            class="w-full bg-amber-400 hover:bg-amber-300 text-zinc-950 font-semibold py-2.5 rounded-md transition-colors disabled:opacity-50"
+            class="btn btn-primary btn-block btn-rounded py-2.5 disabled:opacity-50"
           >
             {{ authStore.loading ? 'Signing in...' : 'Sign in' }}
           </button>

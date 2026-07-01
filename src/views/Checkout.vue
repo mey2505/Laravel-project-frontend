@@ -104,7 +104,7 @@
             <div class="mt-4 bg-gray-50 rounded-lg border border-gray-200 shadow-sm">
               <ul role="list" class="divide-y divide-gray-200">
                 <li v-for="item in cartStore.cartItems" :key="item.id" class="flex py-4 px-4">
-                  <img :src="item.product?.image || 'https://via.placeholder.com/64'" :alt="item.product?.name" class="h-16 w-16 flex-none rounded-md border border-gray-200 object-cover" />
+                  <img :src="item.product?.image ? resolveImageUrl(item.product.image) : 'https://via.placeholder.com/64'" :alt="item.product?.name" class="h-16 w-16 flex-none rounded-md border border-gray-200 object-cover" />
                   <div class="ml-4 flex-auto">
                     <h3 class="font-medium text-gray-900 text-sm">{{ item.product?.name }}</h3>
                     <p class="text-gray-500 text-sm">Qty {{ item.quantity }}</p>
@@ -140,7 +140,7 @@
 import { ref, reactive } from 'vue'
 import { useAuthStore } from '../stores/auth'
 import { useCartStore } from '../stores/cart'
-import axios from '../axios'
+import axios, { resolveImageUrl } from '../axios'
 
 const authStore = useAuthStore()
 const cartStore = useCartStore()

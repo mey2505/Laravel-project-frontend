@@ -78,68 +78,69 @@
     </div>
 
     <!-- Grid -->
-    <div v-else class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+    <div v-else class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
       <div
         v-for="product in products"
         :key="product.id"
-        class="group relative bg-white rounded-xl shadow-sm hover:shadow-lg transition-all duration-200 overflow-hidden border border-zinc-100 flex flex-col"
+        class="group relative bg-white rounded-[28px] border border-zinc-100 shadow-sm hover:-translate-y-1 hover:shadow-lg transition-transform duration-300 overflow-hidden"
       >
-        <!-- Image -->
-        <router-link :to="{ name: 'ProductDetails', params: { slug: product.slug } }" class="block relative w-full h-48 bg-zinc-100 overflow-hidden">
-          <img
-            :src="resolveImageUrl(product.image) || 'https://placehold.co/400x300?text=No+Image'"
-            :alt="product.name"
-            class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-          />
-          <span v-if="!product.in_stock" class="absolute top-2 left-2 bg-zinc-900/90 text-white text-xs font-semibold px-2 py-1 rounded">Sold out</span>
-          <span v-if="product.discount_price" class="absolute top-2 right-2 bg-red-500 text-white text-xs font-semibold px-2 py-1 rounded">Sale</span>
-        </router-link>
-
-        <!-- Wishlist toggle -->
         <button
-          v-if="authStore.isAuthenticated"
           @click.prevent="toggleWishlist(product)"
-          :disabled="togglingId === product.id"
-          class="absolute top-2 right-2 mt-7 p-1.5 rounded-full bg-white/90 shadow transition-colors hover:bg-white"
-          :class="{ 'opacity-50': togglingId === product.id }"
           :aria-label="wishlistStore.isWishlisted(product.id) ? 'Remove from wishlist' : 'Add to wishlist'"
+          :class="wishlistStore.isWishlisted(product.id) ? 'text-red-500' : 'text-zinc-400 hover:text-red-500'"
+          class="absolute right-4 top-4 z-10 flex h-11 w-11 items-center justify-center rounded-full border border-zinc-200 bg-white/95 shadow-sm transition-colors"
         >
-          <svg class="w-4 h-4 transition-colors" :class="wishlistStore.isWishlisted(product.id) ? 'text-red-500 fill-red-500' : 'text-zinc-400'" viewBox="0 0 24 24" stroke="currentColor" fill="none">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+          <svg class="h-5 w-5" viewBox="0 0 24 24" fill="currentColor" :class="wishlistStore.isWishlisted(product.id) ? 'fill-red-500' : 'fill-none'" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
           </svg>
         </button>
 
-        <!-- Info -->
-        <div class="p-4 flex flex-col flex-grow">
-          <p class="text-xs text-amber-600 font-medium mb-1">{{ product.category?.name }}</p>
-          <router-link :to="{ name: 'ProductDetails', params: { slug: product.slug } }">
-            <h3 class="text-sm font-semibold text-zinc-900 hover:text-amber-600 transition-colors line-clamp-2 flex-grow">{{ product.name }}</h3>
+        <router-link
+          :to="{ name: 'ProductDetails', params: { slug: product.slug } }"
+          class="block overflow-hidden"
+        >
+          <img
+            :src="resolveImageUrl(product.image) || 'https://placehold.co/640x480?text=Food+Image'"
+            :alt="product.name"
+            class="w-full h-44 object-contain bg-zinc-100"
+          />
+        </router-link>
+
+        <div class="p-6 space-y-4">
+          <p class="text-[10px] uppercase tracking-[0.35em] font-semibold text-amber-600">{{ product.category?.name }}</p>
+
+          <router-link :to="{ name: 'ProductDetails', params: { slug: product.slug } }" class="block">
+            <h3 class="text-2xl font-bold text-zinc-950 hover:text-amber-600 transition-colors line-clamp-2">{{ product.name }}</h3>
           </router-link>
 
-          <div v-if="product.reviews_count > 0" class="flex items-center mt-1.5 gap-1">
-            <svg v-for="n in 5" :key="n" class="h-3.5 w-3.5" :class="n <= Math.round(product.reviews_avg) ? 'text-amber-400' : 'text-zinc-200'" fill="currentColor" viewBox="0 0 20 20">
-              <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-            </svg>
-            <span class="text-xs text-zinc-400">({{ product.reviews_count }})</span>
-          </div>
-
-          <div class="mt-2 flex items-end justify-between gap-2">
-            <div>
-              <span class="text-base font-bold text-zinc-900">${{ product.discount_price ?? product.price }}</span>
-              <span v-if="product.discount_price" class="ml-1.5 text-xs text-zinc-400 line-through">${{ product.price }}</span>
+          <div class="flex items-center gap-2 text-sm text-zinc-500">
+            <div class="flex items-center gap-1">
+              <svg v-for="n in 5" :key="n" class="h-4 w-4" :class="n <= Math.round(product.reviews_avg) ? 'text-amber-400' : 'text-zinc-200'" fill="currentColor" viewBox="0 0 20 20">
+                <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+              </svg>
             </div>
-
-            <button
-              v-if="product.in_stock"
-              @click="addToCart(product)"
-              :disabled="addingId === product.id"
-              class="flex-shrink-0 bg-amber-400 hover:bg-amber-300 text-zinc-950 text-xs font-semibold px-3 py-1.5 rounded-md transition-colors disabled:opacity-50"
-            >
-              <span v-if="addingId === product.id">Adding…</span>
-              <span v-else>Add</span>
-            </button>
-            <span v-else class="text-xs text-zinc-400">Out of stock</span>
+            <span>({{ product.reviews_count || 0 }})</span>
           </div>
+
+          <div class="flex items-center justify-between gap-4">
+            <div class="flex items-baseline gap-3">
+              <span class="text-2xl font-bold text-zinc-950">${{ product.discount_price ?? product.price }}</span>
+              <span v-if="product.discount_price" class="text-sm text-zinc-400 line-through">${{ product.price }}</span>
+            </div>
+            <span v-if="product.discount_price" class="inline-flex items-center rounded-full bg-amber-100 text-amber-700 text-[11px] font-semibold px-3 py-1">
+              -{{ Math.round((1 - product.discount_price / product.price) * 100) }}%
+            </span>
+          </div>
+
+          <button
+            v-if="product.in_stock"
+            @click="addToCart(product)"
+            :disabled="addingId === product.id"
+            class="w-full rounded-full bg-amber-400 text-zinc-950 font-semibold py-3 hover:bg-amber-500 transition-colors disabled:opacity-50"
+          >
+            {{ addingId === product.id ? 'Adding…' : 'Add to cart' }}
+          </button>
+          <span v-else class="text-sm text-zinc-500">Out of stock</span>
         </div>
       </div>
     </div>
@@ -170,14 +171,15 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
-import { useRouter } from 'vue-router'
+import { ref, onMounted, watch } from 'vue'
+import { useRouter, useRoute } from 'vue-router'
 import axios, { resolveImageUrl } from '../axios'
 import { useAuthStore } from '../stores/auth'
 import { useCartStore } from '../stores/cart'
 import { useWishlistStore } from '../stores/wishlist'
 
 const router = useRouter()
+const route = useRoute()
 const authStore = useAuthStore()
 const cartStore = useCartStore()
 const wishlistStore = useWishlistStore()
@@ -211,6 +213,7 @@ const fetchProducts = async (page = 1) => {
     const response = await axios.get('/products', {
       params: {
         page,
+        per_page: 1000,
         search: searchQuery.value || undefined,
         category: selectedCategory.value || undefined,
         sort: sortOption.value,
@@ -242,7 +245,7 @@ const debounceSearch = () => {
 
 const selectCategory = (slug) => {
   selectedCategory.value = slug
-  fetchProducts()
+  router.push({ path: '/menu', query: slug ? { category: slug } : {} })
 }
 
 const resetFilters = () => {
@@ -250,7 +253,7 @@ const resetFilters = () => {
   selectedCategory.value = ''
   sortOption.value = 'latest'
   onSaleOnly.value = false
-  fetchProducts()
+  router.push({ path: '/menu', query: {} })
 }
 
 const addToCart = async (product) => {
@@ -282,9 +285,18 @@ const toggleWishlist = async (product) => {
 }
 
 onMounted(() => {
+  selectedCategory.value = route.query.category || ''
   fetchProducts()
   fetchCategories()
 })
+
+watch(
+  () => route.query.category,
+  (category) => {
+    selectedCategory.value = category || ''
+    fetchProducts()
+  }
+)
 </script>
 
 <style scoped>

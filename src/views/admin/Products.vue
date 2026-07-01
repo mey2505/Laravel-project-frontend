@@ -67,6 +67,13 @@
             </td>
             <td class="px-5 py-3 text-right space-x-3">
               <button @click="openEditModal(p)" class="text-amber-600 hover:text-amber-700 font-medium">Edit</button>
+              <button
+                @click="toggleStatus(p)"
+                :disabled="togglingStatusId === p.id"
+                class="text-zinc-600 hover:text-zinc-900 font-medium"
+              >
+                {{ p.status ? 'Hide' : 'Activate' }}
+              </button>
               <button @click="confirmDelete(p)" class="text-red-600 hover:text-red-700 font-medium">Delete</button>
             </td>
           </tr>
@@ -183,6 +190,7 @@ const pagination = ref(null)
 const showModal = ref(false)
 const editingProduct = ref(null)
 const submitting = ref(false)
+const togglingStatusId = ref(null)
 const formError = ref(null)
 
 const form = reactive({
@@ -312,6 +320,18 @@ const confirmDelete = async (p) => {
     await fetchProducts(pagination.value?.current_page || 1)
   } catch (e) {
     alert(e.response?.data?.message || 'Failed to delete product.')
+  }
+}
+
+const toggleStatus = async (p) => {
+  togglingStatusId.value = p.id
+  try {
+    await axios.put(`/admin/products/${p.id}/status`, { status: p.status ? 0 : 1 })
+    p.status = !p.status
+  } catch (e) {
+    alert(e.response?.data?.message || 'Failed to update product status.')
+  } finally {
+    togglingStatusId.value = null
   }
 }
 

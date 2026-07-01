@@ -12,12 +12,11 @@
       </svg>
       <h3 class="text-lg font-semibold text-zinc-900">Your cart is empty</h3>
       <p class="mt-1 text-sm text-zinc-500">Add something delicious to get started.</p>
-      <router-link to="/menu" class="mt-6 inline-block bg-amber-400 hover:bg-amber-300 text-zinc-950 font-semibold px-6 py-2.5 rounded-md transition-colors">Browse menu</router-link>
+      <router-link to="/menu" class="btn btn-primary btn-rounded px-6 py-2.5 mt-6">Browse menu</router-link>
     </div>
 
-    <div v-else class="lg:grid lg:grid-cols-12 lg:gap-8">
-      <!-- Cart items -->
-      <div class="lg:col-span-7">
+    <div v-else class="grid gap-8 lg:grid-cols-[1.5fr_0.95fr] items-start">
+      <div class="space-y-4">
         <ul class="space-y-4">
           <li
             v-for="item in cartStore.cartItems"
@@ -78,7 +77,7 @@
       </div>
 
       <!-- Summary -->
-      <div class="mt-8 lg:mt-0 lg:col-span-5">
+      <div class="mt-8 lg:mt-0 self-start">
         <div class="bg-zinc-50 rounded-xl border border-zinc-200 p-6 sticky top-20">
           <h2 class="text-base font-semibold text-zinc-900 mb-5">Order summary</h2>
 
@@ -103,7 +102,7 @@
 
           <router-link
             to="/checkout"
-            class="mt-6 flex w-full items-center justify-center bg-amber-400 hover:bg-amber-300 text-zinc-950 font-semibold py-3 rounded-md transition-colors"
+            class="btn btn-primary btn-rounded btn-block mt-6"
           >
             Proceed to checkout →
           </router-link>

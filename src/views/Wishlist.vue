@@ -53,11 +53,11 @@
         </button>
 
         <!-- Image -->
-        <router-link :to="{ name: 'ProductDetails', params: { slug: product.slug } }" class="block relative w-full h-48 bg-zinc-100 overflow-hidden">
+        <router-link :to="{ name: 'ProductDetails', params: { slug: product.slug } }" class="block relative w-full h-36 bg-zinc-100 overflow-hidden">
           <img
             :src="resolveImageUrl(product.image) || 'https://placehold.co/400x300?text=No+Image'"
             :alt="product.name"
-            class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+            class="w-full h-full object-contain group-hover:scale-105 transition-transform duration-300"
           />
           <span v-if="!product.in_stock" class="absolute top-2 left-2 bg-zinc-900/90 text-white text-xs font-semibold px-2 py-1 rounded">Sold out</span>
           <span v-if="product.discount_price" class="absolute top-2 left-2 bg-red-500 text-white text-xs font-semibold px-2 py-1 rounded" :class="{ 'left-20': !product.in_stock }">Sale</span>
@@ -86,7 +86,7 @@
               v-if="product.in_stock"
               @click="addToCart(product)"
               :disabled="addingId === product.id"
-              class="bg-amber-400 hover:bg-amber-300 text-zinc-950 text-xs font-semibold px-3 py-1.5 rounded-md transition-colors disabled:opacity-50"
+              class="btn btn-primary btn-rounded text-xs py-1.5 px-3 disabled:opacity-50"
             >
               {{ addingId === product.id ? 'Adding…' : 'Add to cart' }}
             </button>

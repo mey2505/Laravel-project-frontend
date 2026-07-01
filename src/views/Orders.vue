@@ -1,5 +1,5 @@
 <template>
-  <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+  <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-10 bg-zinc-50">
     <h1 class="text-3xl font-bold text-zinc-900 mb-8">My Orders</h1>
 
     <div v-if="loading" class="flex justify-center py-24">
@@ -14,62 +14,67 @@
       </svg>
       <h3 class="text-lg font-semibold text-zinc-900">No orders yet</h3>
       <p class="mt-1 text-sm text-zinc-500">Once you place an order, it will appear here.</p>
-      <router-link to="/menu" class="mt-6 inline-block bg-amber-400 hover:bg-amber-300 text-zinc-950 font-semibold px-6 py-2.5 rounded-md transition-colors">Browse the menu</router-link>
+      <router-link to="/menu" class="btn btn-primary btn-rounded px-6 py-2.5 mt-6">Browse the menu</router-link>
     </div>
 
     <div v-else class="space-y-6">
-      <div v-for="order in orders" :key="order.id" class="bg-white rounded-xl shadow-sm border border-zinc-200 overflow-hidden">
-        <!-- Header -->
-        <div class="px-6 py-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 bg-zinc-50 border-b border-zinc-200">
-          <div class="flex flex-wrap gap-6">
-            <div>
-              <p class="text-xs text-zinc-400 uppercase tracking-wide mb-0.5">Order</p>
-              <p class="text-sm font-semibold text-zinc-900 font-mono">{{ order.order_number }}</p>
+      <div v-for="order in orders" :key="order.id" class="rounded-3xl border border-zinc-200 bg-white shadow-sm overflow-hidden">
+        <div class="px-6 py-5 sm:px-8 sm:py-6">
+          <div class="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+            <div class="space-y-3">
+              <div class="grid gap-4 sm:grid-cols-3">
+                <div>
+                  <p class="text-xs text-zinc-400 uppercase tracking-wide mb-1">Order</p>
+                  <p class="text-sm font-semibold text-zinc-900">{{ order.order_number }}</p>
+                </div>
+                <div>
+                  <p class="text-xs text-zinc-400 uppercase tracking-wide mb-1">Placed</p>
+                  <p class="text-sm font-medium text-zinc-700">{{ formatDate(order.created_at) }}</p>
+                </div>
+                <div>
+                  <p class="text-xs text-zinc-400 uppercase tracking-wide mb-1">Total</p>
+                  <p class="text-sm font-bold text-zinc-900">${{ Number(order.total).toFixed(2) }}</p>
+                </div>
+              </div>
+              <div class="flex flex-wrap gap-2">
+                <span :class="statusClass(order.status)" class="px-3 py-1 rounded-full text-xs font-semibold capitalize flex items-center gap-1.5">
+                  <span :class="statusDot(order.status)" class="w-2 h-2 rounded-full"></span>
+                  {{ order.status }}
+                </span>
+                <span :class="paymentClass(order.payment_status)" class="px-3 py-1 rounded-full text-xs font-semibold capitalize">
+                  {{ order.payment_status }}
+                </span>
+              </div>
             </div>
-            <div>
-              <p class="text-xs text-zinc-400 uppercase tracking-wide mb-0.5">Placed</p>
-              <p class="text-sm font-medium text-zinc-700">{{ formatDate(order.created_at) }}</p>
+            <div class="text-sm text-zinc-500 space-y-1 bg-zinc-100 rounded-2xl p-4 border border-zinc-200">
+              <p class="font-semibold text-zinc-900">Shipping</p>
+              <p>{{ order.shipping_address }}</p>
+              <p class="capitalize">{{ (order.payment_method || '').replace('_', ' ') }}</p>
             </div>
-            <div>
-              <p class="text-xs text-zinc-400 uppercase tracking-wide mb-0.5">Total</p>
-              <p class="text-sm font-bold text-zinc-900">${{ Number(order.total).toFixed(2) }}</p>
-            </div>
-          </div>
-          <div class="flex items-center gap-2 flex-wrap">
-            <span :class="statusClass(order.status)" class="px-3 py-1 rounded-full text-xs font-semibold capitalize flex items-center gap-1.5">
-              <span :class="statusDot(order.status)" class="w-1.5 h-1.5 rounded-full"></span>
-              {{ order.status }}
-            </span>
-            <span :class="paymentClass(order.payment_status)" class="px-3 py-1 rounded-full text-xs font-semibold capitalize">
-              {{ order.payment_status }}
-            </span>
           </div>
         </div>
 
         <!-- Items -->
-        <ul class="divide-y divide-zinc-100">
-          <li v-for="item in order.items" :key="item.id" class="flex items-center px-6 py-4 gap-4">
-            <div class="flex-shrink-0 h-14 w-14 bg-zinc-100 rounded-lg overflow-hidden">
-              <img
-                :src="item.product?.image ? resolveImageUrl(item.product.image) : 'https://placehold.co/56x56?text=?'"
-                :alt="item.product_name"
-                class="h-full w-full object-cover"
-              />
+        <ul class="divide-y divide-zinc-100 bg-zinc-50">
+          <li v-for="item in order.items" :key="item.id" class="flex flex-col gap-4 px-6 py-4 sm:flex-row sm:items-center">
+            <div class="flex items-center gap-4">
+              <div class="flex-shrink-0 h-16 w-16 rounded-3xl bg-zinc-100 overflow-hidden border border-zinc-200 shadow-sm">
+                <img
+                  :src="item.product?.image ? resolveImageUrl(item.product.image) : 'https://placehold.co/64x64?text=?'"
+                  :alt="item.product_name"
+                  class="h-full w-full object-cover"
+                />
+              </div>
+              <div class="min-w-0">
+                <p class="text-sm font-semibold text-zinc-900 truncate">{{ item.product_name }}</p>
+                <p class="text-sm text-zinc-500">Qty {{ item.quantity }} · ${{ Number(item.unit_price).toFixed(2) }} each</p>
+              </div>
             </div>
-            <div class="flex-1 min-w-0">
-              <p class="text-sm font-medium text-zinc-900 truncate">{{ item.product_name }}</p>
-              <p class="text-sm text-zinc-500">Qty {{ item.quantity }} × ${{ Number(item.unit_price).toFixed(2) }}</p>
-            </div>
-            <p class="text-sm font-semibold text-zinc-900">${{ Number(item.total).toFixed(2) }}</p>
+            <p class="text-sm font-semibold text-zinc-900 ml-auto">${{ Number(item.total).toFixed(2) }}</p>
           </li>
         </ul>
-
-        <!-- Footer -->
-        <div class="px-6 py-3 bg-zinc-50 border-t border-zinc-100 flex flex-wrap justify-between items-center gap-2 text-xs text-zinc-500">
-          <span>{{ order.shipping_address }}</span>
-          <span class="capitalize">{{ (order.payment_method || '').replace('_', ' ') }}</span>
-        </div>
       </div>
+    </div>
 
       <!-- Pagination -->
       <div v-if="meta && meta.last_page > 1" class="flex justify-center gap-2 pt-4">
@@ -83,7 +88,6 @@
           {{ page }}
         </button>
       </div>
-    </div>
   </div>
 </template>
 
